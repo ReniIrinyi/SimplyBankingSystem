@@ -34,54 +34,83 @@ public class Main
             }
         }
     }
+
     private static void generateCard(HashMap cardDetails)
     {
         Random nr=new Random();
-        int pin=1000+nr.nextInt(9999);
-        long card=(long) 1000000000+nr.nextInt(999999999);
-        String cardNrString="400000"+card;
+        int pin=10+nr.nextInt(9999);
+        long card=(long) 100000000+nr.nextInt(99999999);
+        String preCardNr="400000"+Long.toString(card);
+        //String preCardNr="400000844943340";
+        System.out.println(preCardNr);
+
+        String digits[]=preCardNr.split("");
+        int[] arrayFromDigits = new int[digits.length];
+        for(int i=0; i<digits.length; i++){
+            arrayFromDigits[i]=Integer.parseInt(digits[i]);
+        }
+        int[] tempArray=arrayFromDigits;
+        int checkSum=0;
+        //Luhn Algorithm
+        for(int i=0; i<tempArray.length; i++){
+            if(i%2==0) {
+                tempArray[i] += (arrayFromDigits[i]);
+                if (tempArray[i] > 9) {
+                    tempArray[i]-=9;
+                }
+            }
+            checkSum+=tempArray[i];
+        }
+
+
+        int finalCardNr= checkSum%10==0 ? 0 : 10-(checkSum%10) ;
+
+
+        System.out.println(finalCardNr);
+
+        String finalNr= String.valueOf(finalCardNr);
+        String cardNrString=preCardNr+finalNr;
+
         cardDetails.put(cardNrString,Integer.toString(pin));
 
         System.out.println(
                 "Your card has been created\n"+
-                "Your card number:\n" +
-                cardNrString+"\n"+
-                "Your card PIN\n"+
-                pin);
+                        "Your card number:\n" +
+                        cardNrString+"\n"+
+                        "Your card PIN:\n"+
+                        pin);
         runmenu(cardDetails);
     }
 
     private static void login(HashMap cardDetails)
     {
+
         Scanner scanner=new Scanner(System.in);
         System.out.println("Enter your card number:\n");
         String card=scanner.next();
+        System.out.println(cardDetails.keySet());
         System.out.println("Enter your PIN:\n");
+
         String pin= scanner.next();
-        
-        if(cardDetails.containsKey(card))
-            System.out.println(cardDetails);
-        {
-            //TODO
-            if(cardDetails.containsKey(pin)){
-                System.out.println(cardDetails.keySet());
+
+            if(cardDetails.containsKey(card) && cardDetails.containsValue(pin)){
+                //TODO
+
                 System.out.println("You have successfully logged in!");
-                runmainmenu();
+                runmainmenu(cardDetails);
             }
             else
             {
                 System.out.println("Wrong card number or PIN");
                 runmenu(cardDetails);
             }
-        }
-        else
-        {
+
             System.out.println("Wrong card number or PIN");
             runmenu(cardDetails);
-        }
+
     }
 
-    private static void runmainmenu()
+    private static void runmainmenu(HashMap cardDetails)
     {
         Scanner scanner=new Scanner(System.in);
         System.out.println("" +
@@ -99,6 +128,11 @@ public class Main
             if(input == 1)
             {
                 System.out.println("Balance: 0");
+            }
+            if(input == 2)
+            {
+                System.out.println("You have successfully logged out!");
+                runmenu(cardDetails);
             }
 
         }
